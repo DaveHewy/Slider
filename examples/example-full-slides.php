@@ -7,7 +7,6 @@
 <!-- The jQuery call -->
 <script type="text/javascript">
 jQuery(function(){
-	jQuery("ul#menu-header-hori-nav").wpSubMenu();
 	jQuery(".advanced-slide-menu").contentSlider({
 		slides: "ul.main-slides",
 		effect: "fade",
