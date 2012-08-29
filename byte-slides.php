@@ -168,11 +168,35 @@ if(!function_exists('getSlideInfo')){
 			
 			if($args['subslide']){
 				
+				/* Return sub slide images only if there are some to be returned. */		
 				$slides['slide'][$slide_id]['sub_slides'] = array();
 				
 				for ($i=1; $i < 11; $i++) { 
-					$slides['slide'][$slide_id]['sub_slides'][$i] = get_post_meta(get_the_ID(), '_advslide_sublide_'.$i, TRUE); 
-				}
+					$meta_value = get_post_meta(get_the_ID(), '_advslide_sublide_'.$i, TRUE);
+					if($meta_value){
+						
+						/* Attach the slide first */
+						$slides['slide'][$slide_id]['sub_slides'][$i] = array(
+							"slide" => $meta_value,
+						);
+						
+						/* If a sub slide exists - it will need to have been attached via the media centre */
+						$postID = get_attachment_id_from_src($meta_value);
+						
+						// If the postID is found we can retrieve further info
+						if($postID){
+							$attachmentMeta = wp_get_attachment($postID);
+							if($attachmentMeta){
+								$slides['slide'][$slide_id]['sub_slides'][$i]['meta'] = $attachmentMeta;
+							}/* No attachment meta data was found */
+						} /* No postID retrieved from url */
+							
+					}/* No meta value found */				 
+				}/* Args subslide was not met */
+				
+				/* If the array remains empty, unset it */
+				if(count($slides['slide'][$slide_id]['sub_slides'])<=0)
+					unset($slides['slide'][$slide_id]['sub_slides']);
 			
 			}
 			
@@ -184,6 +208,37 @@ if(!function_exists('getSlideInfo')){
 
 	}
 }
+
+if(!function_exists('wp_get_attachment')):
+function wp_get_attachment( $attachment_id ) {
+
+	$attachment = get_post( $attachment_id );
+	return array(
+		'alt' => get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true ),
+		'caption' => $attachment->post_excerpt,
+		'description' => $attachment->post_content,
+		'href' => get_permalink( $attachment->ID ),
+		'src' => $attachment->guid,
+		'title' => $attachment->post_title
+	);
+}
+endif;
+
+/**
+ * get_attachment_id_from_src 
+ * retrieves attachment id from src url
+ * @author D Heward
+ */
+if(!function_exists('get_attachment_id_from_src')):
+	function get_attachment_id_from_src ($image_src) {
+
+			global $wpdb;
+			$query = "SELECT ID FROM {$wpdb->posts} WHERE guid='$image_src'";
+			$id = $wpdb->get_var($query);
+			return $id;
+
+		}
+endif;
 
 /**
  * Include the necessary JS & CSS files

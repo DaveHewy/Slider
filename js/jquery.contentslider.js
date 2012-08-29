@@ -70,6 +70,13 @@
 			var slide = $(options.slides).find("[data-slide='" + parseInt(base.currentslide+1) + "']");
 			base.showSlide(slide);
 			
+			// Enable subs if necessary.
+			var list = $(options.list).find("[data-list='" + parseInt(base.currentslide+1) + "']");
+			if(options.enablesubslides===true){
+				base.enableSubs(list);
+				base.enablePagerStop(slide);
+			}			
+			
 			// Move the counters along.
 			base.currentslide = base.currentslide+1;
 			base.nextslide = base.nextslide+1;
@@ -89,6 +96,12 @@
 				base.enableSubs(obj);
 			}
 		}
+		base.enablePagerStop = function(obj){
+			// We will look for the pager elements and add a click action to them.
+			$(obj).find('.pager a, .next, .prev').bind('click',function(){
+				base.inactivityStart();
+			});
+		}
 		base.enableSubs = function(obj){
 			var subSlideContainer = $(options.slides).find("[data-slide='" + $(obj).data('list') + "']");
 			var subContainer = $(subSlideContainer).find(options.subclass);
@@ -104,6 +117,10 @@
 				    next:   $(subContainer).parent().find(options.subslideNext), 
 				    prev:   $(subContainer).parent().find(options.subslidePrev),
 					pager:  pager
+				});
+				$("nav.pager").find("a").click(function(event){
+					event.preventDefault();
+					return false;
 				});
 			}
 		}
@@ -121,7 +138,10 @@
 		base.hideAllSlides = function(){
 			$(options.slides).find('> li').each(function(i,value){
 				$(this).addClass("display-off").hide();
+				// Within this function disable all of the binded attrs to the pagers.
+				$(options.slides).find('.pager a, .next, .prev').unbind('click');				
 			});
+			
 		}
 		
 		// Hook up the list menu.
