@@ -54,7 +54,7 @@
 		base.handleInterval = function(){
 			
 			// Log the call
-			console.log("firing the interval off "+parseInt(base.currentslide+1));
+			//console.log("firing the interval off "+parseInt(base.currentslide+1));
 			
 			if(parseInt(base.currentslide+1) >= base.totalSlides){
 				base.currentslide = -1;
